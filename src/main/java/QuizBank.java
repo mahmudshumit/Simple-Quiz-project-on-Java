@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class QuizBank {
+public class QuizBank {
     private List<Question> questions;
-
 
     public QuizBank() {
         this.questions = new ArrayList<>();
+        loadQuestions(); // Load questions when initializing QuizBank
     }
 
     public List<Question> getQuestions() {
@@ -26,6 +26,7 @@ class QuizBank {
 
     public void addQuestion(Question question) {
         questions.add(question);
+        saveQuestions(); // Save questions after adding a new one
     }
 
     public List<Question> getRandomQuestions(int count) {
@@ -38,12 +39,14 @@ class QuizBank {
         }
     }
 
-    public void loadQuestions() {
+    void loadQuestions() {
         String fileName = "./src/main/resources/quiz.json";
 
         try (FileReader reader = new FileReader(fileName)) {
             JSONParser parser = new JSONParser();
             JSONArray jsonArray = (JSONArray) parser.parse(reader);
+
+            questions.clear(); // Clear existing questions before loading
 
             for (Object obj : jsonArray) {
                 JSONObject jsonObj = (JSONObject) obj;
@@ -62,47 +65,26 @@ class QuizBank {
         }
     }
 
-    public void saveQuestions() {
+    private void saveQuestions() {
         String fileName = "./src/main/resources/quiz.json";
-        List<Map<String, Object>> questionsData = new ArrayList<>();
+        JSONArray jsonArray = new JSONArray();
+
         for (Question question : questions) {
-            Map<String, Object> questionData = new HashMap<>();
-            questionData.put("question", question.getQuestion());
-            questionData.put("option1", question.getOption1());
-            questionData.put("option2", question.getOption2());
-            questionData.put("option3", question.getOption3());
-            questionData.put("option4", question.getOption4());
-            questionData.put("answerKey", question.getAnswerKey());
-            questionsData.add(questionData);
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("question", question.getQuestion());
+            jsonObj.put("option1", question.getOption1());
+            jsonObj.put("option2", question.getOption2());
+            jsonObj.put("option3", question.getOption3());
+            jsonObj.put("option4", question.getOption4());
+            jsonObj.put("answerKey", question.getAnswerKey());
+
+            jsonArray.add(jsonObj);
         }
 
         try (FileWriter writer = new FileWriter(fileName)) {
-            writer.write(toJson(questionsData));
+            writer.write(jsonArray.toJSONString());
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private List<Map<String, Object>> parseJson(String json) {
-        // Implement your JSON parsing logic here
-        List<Map<String, Object>> result = new ArrayList<>();
-        // Parse your JSON content and populate result
-        return result;
-    }
-
-    private String toJson(List<Map<String, Object>> data) {
-        StringBuilder json = new StringBuilder("[\n");
-        for (Map<String, Object> item : data) {
-            json.append("{\n");
-            for (Map.Entry<String, Object> entry : item.entrySet()) {
-                json.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\",\n");
-            }
-            json.append("},\n");
-        }
-        if (!data.isEmpty()) {
-            json.delete(json.length() - 2, json.length());
-        }
-        json.append("]\n");
-        return json.toString();
     }
 }
