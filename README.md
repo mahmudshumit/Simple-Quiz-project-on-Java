@@ -9,7 +9,7 @@ This project builds a user-friendly quiz system catering to SQA enthusiasts. Adm
 
 This quiz system caters to both students and admins:
 
-Students Fuctionality:
+Students Functionality:
 
 Login and start the quiz.
 Answer 10 randomly chosen questions.
